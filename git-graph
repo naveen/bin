@@ -1,4 +1,10 @@
 #!/bin/sh
+# naveen
+#
+# in .gitconfig/[alias]:
+#   graph = !git-graph
+# or run:
+#   git config --global --add alias.graph '!git-graph'
 
 git log --graph --pretty=oneline --abbrev-commit
 

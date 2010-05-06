@@ -1,4 +1,10 @@
 #!/bin/bash
+# naveen
+#
+# in .gitconfig/[alias]:
+#   stat = !git-stat
+# or run:
+#   git config --global --add alias.stat '!git-author-stat'
 
 git log "$@" | git shortlog | perl -ne 'print if/^\S+/' | perl -pe 's/(.*)\((\d+)\).*/$2: $1/' | sort -gr
 # | less -MSi
