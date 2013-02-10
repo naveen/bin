@@ -1,0 +1,46 @@
+#!/bin/bash
+# naveen
+# date: 20130205
+#
+# pretty printer
+#
+# REQUIRES:
+#		python json.tool
+#		xmllint
+#
+# TODO:
+# - syntax highlight
+# - handle file if in ARGV
+
+set -a
+
+function process()
+{
+	f=${source:0:1}
+	if [ $f = "<" ]
+	then
+		echo $source | xmllint --format -
+	else
+		echo $source | python -mjson.tool
+	fi
+}
+
+if [ "$( tty )" == 'not a tty' ]
+then
+	STDIN=1
+else
+	STDIN=0
+fi
+
+if [ ${STDIN} -eq 1 ]
+then
+	read x
+	source=$x
+	process
+else
+	if [ "$1" != "" ]
+	then
+		source=$1
+		process
+	fi
+fi
