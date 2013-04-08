@@ -1,0 +1,1 @@
+ps x | awk '/[^\]]nginx: m/ {print }' | xargs kill
