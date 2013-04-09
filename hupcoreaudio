@@ -1,0 +1,4 @@
+# hupcoreaudio - for all those times airplay refuses to engage
+
+# sudo this
+kill `ps -ax | grep 'coreaudiod' | grep 'sbin' |awk '{print $1}'`
