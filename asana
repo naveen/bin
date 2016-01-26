@@ -21,7 +21,7 @@ config_file = ENV['HOME']+'/.config/asana.rb'
 if File.file? config_file
   require config_file
 else
-  $stdout.puts "Error loading config file in " + ENV['HOME'] + '/config/asana.rb. Use format:'
+  $stdout.puts "Error loading config file in "+ENV['HOME']+'/.config/asana.rb. Use format:'
   $stdout.puts ""
   $stdout.puts 'API_KEY = "APIKEY"'
   $stdout.puts 'WORKSPACE_ID = 000000000000'
