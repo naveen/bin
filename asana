@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+######################################################################
+#
+# asana
+#
+# a fast asana cli which takes input via arguments, a file, a pipe or
+# stdin. the latter three methods are particularly useful when you
+# have a list of tasks you want to quickly add into your project.
+#
+# author: @naveen
+# date: 20160125
+#
+######################################################################
+
+require "rubygems"
+require "JSON"
+require "net/https"
+
+# external config to keep it clean
+config_file = ENV['HOME']+'/.config/asana.rb'
+if File.file? config_file
+  require config_file
+else
+  $stdout.puts "Error loading config file in " + ENV['HOME'] + '/config/asana.rb. Use format:'
+  $stdout.puts ""
+  $stdout.puts 'API_KEY = "APIKEY"'
+  $stdout.puts 'WORKSPACE_ID = 000000000000'
+  $stdout.puts 'ASSIGNEE = "EMAIL@EMAIL.COM"'
+
+  Kernel.exit(false)
+end
+
+# TODO someday, use with the verbose flag to print progress bar?
+# let $stdout avoid buffering the input
+#STDOUT.sync = true
+
+# set up HTTPS connection
+uri = URI.parse("https://app.asana.com/api/1.0/tasks")
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+# set up the request
+header = {
+  "Content-Type" => "application/json"
+}
+
+req = Net::HTTP::Post.new(uri.path, header)
+req['Authorization'] = "Bearer #{API_KEY}"
+
+# get user input from one of various sources
+if ARGV[0]
+  if !File.exist?(ARGV[0])
+    # assume command line arguments make up the task
+    # TODO if more than ARGV[0]> then same
+    input = ARGV.join(" ")
+  else
+    # assume file given has list of tasks
+    # TODO if file is binary, reject
+    input = File.open(ARGV[0])
+  end
+else
+  # assume user is using pipe
+  input = ARGF.read
+end
+
+# write each line to asana
+input.each_line do |line|
+  # TODO progress bar to do along with verbose flag
+  # $stdout.print "."
+
+  req.body = {
+    "data" => {
+      "workspace" => WORKSPACE_ID,
+      "name" => line,
+      "assignee" => ASSIGNEE
+    }
+  }.to_json()
+
+  res = http.start { |http| http.request(req) }
+
+  body = JSON.parse(res.body)
+  if body['errors'] then
+    puts "Server error: #{body['errors'][0]['message']} - #{line}"
+  # else
+    #   puts "Created task with id: #{body['data']['id']}"
+  end
+end
+
+# TODO along with progress bar
+# clean STDOUT
+# $stdout.puts ""
